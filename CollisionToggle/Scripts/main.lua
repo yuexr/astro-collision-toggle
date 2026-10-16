@@ -1,5 +1,5 @@
--- CollisionToggle 1.0.1
-local VERSION = '1.0.1'
+-- CollisionToggle 1.0.2
+local VERSION = '1.0.2'
 local changed
 local scripts = debug.getinfo(1, 'S').source:sub(2):match('^(.*)[/\\]main.lua$')
 local camera = dofile(scripts .. '/camera.lua')
@@ -81,6 +81,7 @@ RegisterConsoleCommandHandler('collision', function(_, parameters, output)
             inspect()
             local details = readStatus()
             details = details .. 'camera_modifiers_overridden=' .. camera.count() .. '\n'
+            details = details .. 'camera_rigs_overridden=' .. camera.rigCount() .. '\n'
             if changed and valid(changed.actor) and valid(changed.capsule) then
                 details = details .. string.format('actor_collision=%s capsule_mode=%s\n',
                     tostring(changed.actor:GetActorEnableCollision()), tostring(changed.capsule:GetCollisionEnabled()))

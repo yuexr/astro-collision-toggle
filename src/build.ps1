@@ -1,7 +1,7 @@
 param([string]$Zig = 'zig')
 
 $ErrorActionPreference = 'Stop'
-$version = '1.0.1'
+$version = '1.0.2'
 $root = Split-Path -Parent $PSScriptRoot
 $build = Join-Path $root 'build'
 $libs = Join-Path $root 'libs/minhook'
@@ -38,7 +38,7 @@ try {
     $env:ZIG_GLOBAL_CACHE_DIR = $oldGlobalCache
 }
 
-# Package only runtime files, without compiler output or saved session state.
+# Leave compiler files out of the zip.
 $package = Join-Path $build 'package/CollisionToggle'
 New-Item -ItemType Directory -Path (Join-Path $package 'Scripts') -Force | Out-Null
 foreach ($name in @('enabled.txt','MinHook-LICENSE.txt','LICENSE')) {

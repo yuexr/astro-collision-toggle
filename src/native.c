@@ -88,7 +88,7 @@ static void flight(void *movement,float dt) {
         Vec drift; memcpy(&drift,m+0x18c,sizeof(drift));
         if((m[0x148]&1) || drift.x!=0 || drift.y!=0 || drift.z!=0)
             InterlockedIncrement(&contacts_cleared);
-        // The normal flight routine uses this flag and vector for its contact drift branch.
+        // Clear contact drift before normal flight.
         m[0x148]&=0xfe;
         memset(m+0x18c,0,sizeof(Vec));
         InterlockedIncrement(&flight_calls);
@@ -134,7 +134,7 @@ __declspec(dllexport) int luaopen_collisiontoggle_refresh(void *state) {
     FILE *f=_wfopen(path,L"r"); unsigned long long address=0;
     if(f) { if(fscanf(f,"%llx",&address)!=1) address=0; fclose(f); }
     if(!address) { status("ACTIVE: Character collision on."); return 0; }
-    // Match the supplied address against the object array before dereferencing it.
+    // Check the object array before using this address.
     unsigned char **chunks=*(unsigned char ***)(objects+16);
     int count; memcpy(&count,objects+36,4);
     for(int i=0;i<count;++i) {
