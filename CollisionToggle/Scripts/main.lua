@@ -1,5 +1,5 @@
--- CollisionToggle 1.0.0
-local VERSION = '1.0.0'
+-- CollisionToggle 1.0.1
+local VERSION = '1.0.1'
 local changed
 local scripts = debug.getinfo(1, 'S').source:sub(2):match('^(.*)[/\\]main.lua$')
 local camera = dofile(scripts .. '/camera.lua')

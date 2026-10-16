@@ -29,7 +29,7 @@ static const unsigned char move_signature[] = {
 };
 static const unsigned char signature[] = {
     0x48,0x83,0xec,0x48,0x41,0xf6,0x40,0x5d,0x02,0x75,0x1d,
-    0x8b,0x05,0xff,0xbc,0xa1,0x04,0xf2,0x0f,0x10,0x05,0xef,0xbc,0xa1,0x04
+    0x8b,0x05,0x5f,0xca,0xa1,0x04,0xf2,0x0f,0x10,0x05,0x4f,0xca,0xa1,0x04
 };
 
 static void sibling(wchar_t *path, const wchar_t *name) {
@@ -100,13 +100,13 @@ static int initialize(void) {
     if(!game) { status("INACTIVE: Astroneer is unavailable."); return 0; }
     IMAGE_DOS_HEADER *dos=(IMAGE_DOS_HEADER *)game;
     IMAGE_NT_HEADERS64 *nt=(IMAGE_NT_HEADERS64 *)(game+dos->e_lfanew);
-    if(nt->FileHeader.TimeDateStamp!=0x6A9A7AE0 || nt->OptionalHeader.SizeOfImage!=0x6D04000 ||
-       memcmp(game+0x1b42660,signature,sizeof(signature)) ||
-       memcmp(game+0x1b4a4b0,move_signature,sizeof(move_signature)) ||
-       memcmp(game+0x1b37dd0,flight_signature,sizeof(flight_signature))) {
+    if(nt->FileHeader.TimeDateStamp!=0x6ABB803D || nt->OptionalHeader.SizeOfImage!=0x6D07000 ||
+       memcmp(game+0x1b44cc0,signature,sizeof(signature)) ||
+       memcmp(game+0x1b4cb10,move_signature,sizeof(move_signature)) ||
+       memcmp(game+0x1b3a480,flight_signature,sizeof(flight_signature))) {
         status("INACTIVE: Unsupported game build or movement signature."); return 0;
     }
-    objects=game+0x65f5460; pool=game+0x65b8c40;
+    objects=game+0x65f8820; pool=game+0x65bc000;
     unsigned char *block=*(unsigned char **)(pool+16);
     if(!block || memcmp(block+2,"None",4)) {
         status("INACTIVE: Name-pool check failed."); return 0;
@@ -115,9 +115,9 @@ static int initialize(void) {
     if(!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_PIN,(LPCWSTR)&adjust,&pinned)) {
         status("INACTIVE: Could not keep the helper loaded."); return 0;
     }
-    if(MH_Initialize()!=MH_OK || MH_CreateHook(game+0x1b42660,(void *)&adjust,(void **)&original)!=MH_OK ||
-       MH_CreateHook(game+0x1b4a4b0,(void *)&move,(void **)&original_move)!=MH_OK ||
-       MH_CreateHook(game+0x1b37dd0,(void *)&flight,(void **)&original_flight)!=MH_OK ||
+    if(MH_Initialize()!=MH_OK || MH_CreateHook(game+0x1b44cc0,(void *)&adjust,(void **)&original)!=MH_OK ||
+       MH_CreateHook(game+0x1b4cb10,(void *)&move,(void **)&original_move)!=MH_OK ||
+       MH_CreateHook(game+0x1b3a480,(void *)&flight,(void **)&original_flight)!=MH_OK ||
        MH_EnableHook(MH_ALL_HOOKS)!=MH_OK) {
         MH_DisableHook(MH_ALL_HOOKS);
         status("INACTIVE: Could not install the movement hook."); return 0;

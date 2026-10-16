@@ -1,7 +1,7 @@
 param([string]$Zig = 'zig')
 
 $ErrorActionPreference = 'Stop'
-$version = '1.0.0'
+$version = '1.0.1'
 $root = Split-Path -Parent $PSScriptRoot
 $build = Join-Path $root 'build'
 $libs = Join-Path $root 'libs/minhook'

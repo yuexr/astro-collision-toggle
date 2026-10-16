@@ -1,5 +1,3 @@
 # Collision Toggle
 
-em broken right now as of Astroneer 1.45.1 release
-
-will come back and deal with later (thumbs up)(crying)
+Version 1.0.1 fixes compatibility with Astroneer 1.45.1. Tested in-game.
