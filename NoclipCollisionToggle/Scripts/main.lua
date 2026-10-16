@@ -1,25 +1,25 @@
--- CollisionToggle 1.0.2
-local VERSION = '1.0.2'
+-- Noclip Collision Toggle 1.1.0
+local VERSION = '1.1.0'
 local changed
 local scripts = debug.getinfo(1, 'S').source:sub(2):match('^(.*)[/\\]main.lua$')
 local camera = dofile(scripts .. '/camera.lua')
 local function valid(object) return object and object:IsValid() end
 local function readStatus()
-    local file = assert(io.open(scripts .. '/CollisionToggle-status.txt', 'r'))
+    local file = assert(io.open(scripts .. '/NoclipCollisionToggle-status.txt', 'r'))
     local text = file:read('*a'); file:close()
     return text
 end
 local function loadNative(name)
-    return assert(package.loadlib(scripts .. '/CollisionToggleNative.dll', name))
+    return assert(package.loadlib(scripts .. '/NoclipCollisionToggleNative.dll', name))
 end
-local initialize = loadNative('luaopen_collisiontoggle')
-local refresh = loadNative('luaopen_collisiontoggle_refresh')
-local inspect = loadNative('luaopen_collisiontoggle_inspect')
+local initialize = loadNative('luaopen_noclipcollisiontoggle')
+local refresh = loadNative('luaopen_noclipcollisiontoggle_refresh')
+local inspect = loadNative('luaopen_noclipcollisiontoggle_inspect')
 initialize()
 assert(readStatus():match('^ACTIVE:'), readStatus())
 
 local function selectMovement(movement)
-    local file = assert(io.open(scripts .. '/CollisionToggle-session.txt', 'w'))
+    local file = assert(io.open(scripts .. '/NoclipCollisionToggle-session.txt', 'w'))
     file:write(movement and string.format('%x', movement:GetAddress()) or '0')
     file:close()
     refresh()
@@ -74,31 +74,28 @@ local function disable()
     camera.disable(controller)
 end
 
-RegisterConsoleCommandHandler('collision', function(_, parameters, output)
+RegisterConsoleCommandHandler('noclip', function(_, parameters, output)
     local action = parameters[1] and parameters[1]:lower()
     if #parameters == 1 and action == 'status' then
         local _, result = pcall(function()
             inspect()
-            local details = readStatus()
-            details = details .. 'camera_modifiers_overridden=' .. camera.count() .. '\n'
-            details = details .. 'camera_rigs_overridden=' .. camera.rigCount() .. '\n'
-            if changed and valid(changed.actor) and valid(changed.capsule) then
-                details = details .. string.format('actor_collision=%s capsule_mode=%s\n',
-                    tostring(changed.actor:GetActorEnableCollision()), tostring(changed.capsule:GetCollisionEnabled()))
-            end
-            return details
+            local status = readStatus()
+            assert(status:match('^ACTIVE:'), status)
+            local state = status:match('Noclip (%a+)')
+            assert(state == 'on' or state == 'off', status)
+            return 'Noclip: ' .. state:upper() .. (state == 'on' and '. Use EVA or creative flight mode.' or '')
         end)
-        output:Log('CollisionToggle ' .. VERSION .. '\n' .. tostring(result) .. '\n')
+        output:Log(tostring(result) .. '\n')
         return true
     end
     if #parameters ~= 1 or (action ~= 'on' and action ~= 'off') then
-        output:Log('Usage: collision on | off | status. Default on.\n')
+        output:Log('Usage: noclip on | off | status. Default off.\n')
         return true
     end
-    local ok, err = pcall(action == 'on' and restore or disable)
-    local message = ok and ('Character collision ' .. action .. '.') or tostring(err)
+    local ok, err = pcall(action == 'on' and disable or restore)
+    local message = ok and (action == 'on' and 'Noclip enabled. Use EVA or creative flight mode.' or 'Noclip disabled.') or tostring(err)
     output:Log(message .. '\n')
-    print('[CollisionToggle ' .. VERSION .. '] ' .. message .. '\n')
+    print('[Noclip Collision Toggle ' .. VERSION .. '] ' .. message .. '\n')
     return true
 end)
-print('[CollisionToggle ' .. VERSION .. '] Ready. Full collision toggle; starts on.\n')
+print('[Noclip Collision Toggle ' .. VERSION .. '] Ready. Noclip starts off.\n')

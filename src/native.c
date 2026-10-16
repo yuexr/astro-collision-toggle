@@ -39,7 +39,7 @@ static void sibling(wchar_t *path, const wchar_t *name) {
     wcscpy(path+n,name);
 }
 static void status(const char *message) {
-    wchar_t path[32768]; sibling(path,L"CollisionToggle-status.txt");
+    wchar_t path[32768]; sibling(path,L"NoclipCollisionToggle-status.txt");
     FILE *f=_wfopen(path,L"w");
     if(f) { fprintf(f,"%s\n",message); fclose(f); }
 }
@@ -122,18 +122,18 @@ static int initialize(void) {
         MH_DisableHook(MH_ALL_HOOKS);
         status("INACTIVE: Could not install the movement hook."); return 0;
     }
-    active=1; status("ACTIVE: Character push-out hook ready; collision defaults on."); return 1;
+    active=1; status("ACTIVE: Noclip ready; defaults off."); return 1;
 }
-__declspec(dllexport) int luaopen_collisiontoggle(void *state) {
+__declspec(dllexport) int luaopen_noclipcollisiontoggle(void *state) {
     (void)state; if(!active) initialize(); return 0;
 }
-__declspec(dllexport) int luaopen_collisiontoggle_refresh(void *state) {
+__declspec(dllexport) int luaopen_noclipcollisiontoggle_refresh(void *state) {
     (void)state; selected=NULL;
     if(!active) { status("INACTIVE: Native hook is unavailable."); return 0; }
-    wchar_t path[32768]; sibling(path,L"CollisionToggle-session.txt");
+    wchar_t path[32768]; sibling(path,L"NoclipCollisionToggle-session.txt");
     FILE *f=_wfopen(path,L"r"); unsigned long long address=0;
     if(f) { if(fscanf(f,"%llx",&address)!=1) address=0; fclose(f); }
-    if(!address) { status("ACTIVE: Character collision on."); return 0; }
+    if(!address) { status("ACTIVE: Noclip off."); return 0; }
     // Check the object array before using this address.
     unsigned char **chunks=*(unsigned char ***)(objects+16);
     int count; memcpy(&count,objects+36,4);
@@ -144,13 +144,13 @@ __declspec(dllexport) int luaopen_collisiontoggle_refresh(void *state) {
         if(!class_is(object,"AstroCharacterMovementComponent")) break;
         selected_index=i; memcpy(&selected_serial,item+16,4);
         unswept=0; flight_calls=0; contacts_cleared=0; selected=object;
-        status("ACTIVE: Character collision off; full push-out bypass enabled."); return 0;
+        status("ACTIVE: Noclip on."); return 0;
     }
     status("INACTIVE: Requested movement component was not found."); return 0;
 }
-__declspec(dllexport) int luaopen_collisiontoggle_inspect(void *state) {
+__declspec(dllexport) int luaopen_noclipcollisiontoggle_inspect(void *state) {
     (void)state; char message[160];
-    snprintf(message,sizeof(message),"ACTIVE: Character collision %s; flight_calls=%ld contact_drifts_cleared=%ld moves_unswept=%ld",selected ? "off" : "on",(long)flight_calls,(long)contacts_cleared,(long)unswept);
+    snprintf(message,sizeof(message),"ACTIVE: Noclip %s; flight_calls=%ld contact_drifts_cleared=%ld moves_unswept=%ld",selected ? "on" : "off",(long)flight_calls,(long)contacts_cleared,(long)unswept);
     status(message); return 0;
 }
 BOOL WINAPI DllMain(HINSTANCE instance,DWORD reason,LPVOID reserved) {

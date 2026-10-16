@@ -79,7 +79,7 @@ RegisterBeginPlayPostHook(function(context)
     if not valid(cameraClass) then cameraClass = StaticFindObject('/Script/Astro.CameraRigActor') end
     if not valid(rig) or not valid(cameraClass) or not rig:IsA(cameraClass) then return end
     local ok, err = pcall(apply, rig)
-    if not ok then print('[CollisionToggle] Camera update failed: ' .. tostring(err) .. '\n') end
+    if not ok then print('[Noclip Collision Toggle] Camera update failed: ' .. tostring(err) .. '\n') end
 end)
 
 local function rigCount()
